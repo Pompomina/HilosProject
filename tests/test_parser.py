@@ -171,3 +171,94 @@ class TestDimensionColumnsPresent:
         row = df[(df["last_code"] == "HS010125ML-1") & (df["size_us"] == 9.0)]
         assert len(row) == 1, "Expected exactly one row for HS010125ML-1 size 9"
         assert row.iloc[0]["ball_girth"] == pytest.approx(243.8, abs=0.1)
+
+
+class TestEvalGroundTruth:
+    """Test 8: Spot-checks that verify ground-truth values used in eval/test_cases.json.
+
+    These act as a contract between the raw xlsx data and the evaluation harness —
+    if a value changes in the source file the test catches it before the evaluator
+    reports a false failure.
+    """
+
+    # --- TC1 / TC11 / TC12 ---
+    def test_tc1_ball_girth_hs010125_size9(self, parsed):
+        df = parsed.lasts_df
+        val = df[(df.last_code == "HS010125ML-1") & (df.size_us == 9.0)].iloc[0]["ball_girth"]
+        assert val == pytest.approx(243.8, abs=0.05)
+
+    # --- TC2 ---
+    def test_tc2_heel_height_hs010125_size10_5(self, parsed):
+        df = parsed.lasts_df
+        val = df[(df.last_code == "HS010125ML-1") & (df.size_us == 10.5)].iloc[0]["heel_height"]
+        assert val == pytest.approx(12.1, abs=0.05)
+
+    # --- TC3 ---
+    def test_tc3_toe_spring_hs030624_size8(self, parsed):
+        df = parsed.lasts_df
+        val = df[(df.last_code == "HS030624ML-2") & (df.size_us == 8.0)].iloc[0]["toe_spring"]
+        assert val == pytest.approx(19.4, abs=0.05)
+
+    # --- TC4: max lbp_ball_width @ size 10 → HS030624ML-2 ---
+    def test_tc4_max_lbp_ball_width_size10(self, parsed):
+        df = parsed.lasts_df
+        sub = df[df.size_us == 10.0][["last_code", "lbp_ball_width"]].dropna()
+        winner = sub.loc[sub["lbp_ball_width"].idxmax(), "last_code"]
+        assert winner == "HS030624ML-2"
+
+    # --- TC5: min stick_length @ size 9 → HS020325WL-1 ---
+    def test_tc5_min_stick_length_size9(self, parsed):
+        df = parsed.lasts_df
+        sub = df[df.size_us == 9.0][["last_code", "stick_length"]].dropna()
+        winner = sub.loc[sub["stick_length"].idxmin(), "last_code"]
+        assert winner == "HS020325WL-1"
+        # Verify the actual minimum value
+        assert sub["stick_length"].min() == pytest.approx(266.7, abs=0.1)
+
+    # --- TC6: mens stick_length > 290 @ size 11 → 3 lasts ---
+    def test_tc6_mens_stick_over_290_size11(self, parsed):
+        df = parsed.lasts_df
+        sub = df[(df.size_us == 11.0) & (df.gender == "MENS")]
+        qualifying = set(sub[sub.stick_length > 290]["last_code"].tolist())
+        assert qualifying == {"HS010125ML-1", "HS030624ML-2", "HS051124ML-3"}
+
+    # --- TC7: ball_girth < 230 @ size 7 → 2 lasts ---
+    def test_tc7_ball_girth_under_230_size7(self, parsed):
+        df = parsed.lasts_df
+        sub = df[df.size_us == 7.0]
+        qualifying = set(sub[sub.ball_girth < 230]["last_code"].tolist())
+        assert qualifying == {"HS020325WL-1", "HS040924WL-2"}
+        # Verify the exact values
+        val_wl1 = sub[sub.last_code == "HS020325WL-1"].iloc[0]["ball_girth"]
+        val_wl2 = sub[sub.last_code == "HS040924WL-2"].iloc[0]["ball_girth"]
+        assert val_wl1 == pytest.approx(223.9, abs=0.05)
+        assert val_wl2 == pytest.approx(228.8, abs=0.05)
+
+    # --- TC8: grading estimate HS010125ML-1 size 9→8 ball_girth ---
+    def test_tc8_grading_estimate_ball_girth(self, parsed):
+        df = parsed.lasts_df
+        known = df[(df.last_code == "HS010125ML-1") & (df.size_us == 9.0)].iloc[0]["ball_girth"]
+        rate = parsed.grading["ball_girth"]
+        estimated = known + (8 - 9) * rate
+        assert estimated == pytest.approx(239.8, abs=0.05)
+        # Also assert actual size-8 value matches
+        actual = df[(df.last_code == "HS010125ML-1") & (df.size_us == 8.0)].iloc[0]["ball_girth"]
+        assert actual == pytest.approx(239.8, abs=0.05)
+
+    # --- TC9: grading estimate HS030624ML-2 size 9→10 waist_girth ---
+    def test_tc9_grading_estimate_waist_girth(self, parsed):
+        df = parsed.lasts_df
+        known = df[(df.last_code == "HS030624ML-2") & (df.size_us == 9.0)].iloc[0]["waist_girth"]
+        rate = parsed.grading["waist_girth"]
+        estimated = known + (10 - 9) * rate
+        assert estimated == pytest.approx(248.9, abs=0.05)
+        actual = df[(df.last_code == "HS030624ML-2") & (df.size_us == 10.0)].iloc[0]["waist_girth"]
+        assert actual == pytest.approx(248.9, abs=0.05)
+
+    # --- TC10: max instep_girth womens @ size 7 → 227.0 ---
+    def test_tc10_max_instep_girth_womens_size7(self, parsed):
+        df = parsed.lasts_df
+        sub = df[(df.size_us == 7.0) & (df.gender == "WOMENS")]
+        assert sub["instep_girth"].max() == pytest.approx(227.0, abs=0.05)
+        winner = sub.loc[sub["instep_girth"].idxmax(), "last_code"]
+        assert winner == "HS040924WL-2"

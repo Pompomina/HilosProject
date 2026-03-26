@@ -42,25 +42,25 @@
     "expected_answer_value": "HS020325WL-1",
     "expected_tool": "compare_lasts",
     "tolerance_mm": null,
-    "ground_truth_source": "size 9 stick_length: HS010125ML-1=279.9, HS020325WL-1=249.8(women), HS030624ML-2=282.8, HS051124ML-3=283.9 → min is HS020325WL-1"
+    "ground_truth_source": "size 9 stick_length: HS010125ML-1=279.9, HS020325WL-1=266.7, HS030624ML-2=282.8, HS040924WL-2=270.3, HS051124ML-3=281.9 → min is HS020325WL-1"
   },
   {
     "id": 6,
     "type": "filter",
     "question": "List all men's lasts with a stick length over 290mm in size 11.",
-    "expected_answer_value": ["HS030624ML-2", "HS051124ML-3"],
+    "expected_answer_value": ["HS010125ML-1", "HS030624ML-2", "HS051124ML-3"],
     "expected_tool": "filter_lasts",
     "tolerance_mm": null,
-    "ground_truth_source": "size 11 MENS stick_length: HS010125ML-1=296.9, HS030624ML-2=299.7, HS051124ML-3=298.9. All three exceed 290. HS010125ML-1 also qualifies."
+    "ground_truth_source": "size 11 MENS stick_length: HS010125ML-1=296.9, HS030624ML-2=299.7, HS051124ML-3=298.9. All three exceed 290."
   },
   {
     "id": 7,
     "type": "filter",
     "question": "Which lasts have a ball girth under 230mm in size 7?",
-    "expected_answer_value": ["HS020325WL-1"],
+    "expected_answer_value": ["HS020325WL-1", "HS040924WL-2"],
     "expected_tool": "filter_lasts",
     "tolerance_mm": null,
-    "ground_truth_source": "size 7 ball_girth: HS020325WL-1=223.9, HS040924WL-2=233.9(approx). Need to verify HS020325WL-1 < 230."
+    "ground_truth_source": "size 7 ball_girth: HS010125ML-1=235.8, HS020325WL-1=223.9, HS030624ML-2=242.2, HS040924WL-2=228.8, HS051124ML-3=234.2. Both HS020325WL-1 and HS040924WL-2 are under 230."
   },
   {
     "id": 8,
