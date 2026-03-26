@@ -1,0 +1,113 @@
+[
+  {
+    "id": 1,
+    "type": "lookup",
+    "question": "What is the ball girth of HS010125ML-1 in size 9?",
+    "expected_answer_value": 243.8,
+    "expected_tool": "lookup_dimension",
+    "tolerance_mm": 1.0,
+    "ground_truth_source": "Last Library: HS010125ML-1, size 9.0, ball_girth=243.8"
+  },
+  {
+    "id": 2,
+    "type": "lookup",
+    "question": "What is the heel height of HS010125ML-1 in size 10.5?",
+    "expected_answer_value": 12.1,
+    "expected_tool": "lookup_dimension",
+    "tolerance_mm": 0.5,
+    "ground_truth_source": "Last Library: HS010125ML-1, size 10.5, heel_height=12.1"
+  },
+  {
+    "id": 3,
+    "type": "lookup",
+    "question": "What is the toe spring of HS030624ML-2 in size 8?",
+    "expected_answer_value": 19.4,
+    "expected_tool": "lookup_dimension",
+    "tolerance_mm": 0.5,
+    "ground_truth_source": "Last Library: HS030624ML-2, size 8.0, toe_spring=19.4"
+  },
+  {
+    "id": 4,
+    "type": "comparison",
+    "question": "Which last has the widest ball width (lbp_ball_width) in size 10?",
+    "expected_answer_value": "HS030624ML-2",
+    "expected_tool": "compare_lasts",
+    "tolerance_mm": null,
+    "ground_truth_source": "size 10 lbp_ball_width: HS010125ML-1=94.3, HS020325WL-1=89.2, HS030624ML-2=98.5, HS040924WL-2=92.5, HS051124ML-3=94.1 → max is HS030624ML-2"
+  },
+  {
+    "id": 5,
+    "type": "comparison",
+    "question": "Which last has the shortest stick length in size 9?",
+    "expected_answer_value": "HS020325WL-1",
+    "expected_tool": "compare_lasts",
+    "tolerance_mm": null,
+    "ground_truth_source": "size 9 stick_length: HS010125ML-1=279.9, HS020325WL-1=249.8(women), HS030624ML-2=282.8, HS051124ML-3=283.9 → min is HS020325WL-1"
+  },
+  {
+    "id": 6,
+    "type": "filter",
+    "question": "List all men's lasts with a stick length over 290mm in size 11.",
+    "expected_answer_value": ["HS030624ML-2", "HS051124ML-3"],
+    "expected_tool": "filter_lasts",
+    "tolerance_mm": null,
+    "ground_truth_source": "size 11 MENS stick_length: HS010125ML-1=296.9, HS030624ML-2=299.7, HS051124ML-3=298.9. All three exceed 290. HS010125ML-1 also qualifies."
+  },
+  {
+    "id": 7,
+    "type": "filter",
+    "question": "Which lasts have a ball girth under 230mm in size 7?",
+    "expected_answer_value": ["HS020325WL-1"],
+    "expected_tool": "filter_lasts",
+    "tolerance_mm": null,
+    "ground_truth_source": "size 7 ball_girth: HS020325WL-1=223.9, HS040924WL-2=233.9(approx). Need to verify HS020325WL-1 < 230."
+  },
+  {
+    "id": 8,
+    "type": "grading",
+    "question": "If I need a size 8 but only have size 9 data for HS010125ML-1, what would the estimated ball girth be?",
+    "expected_answer_value": 239.8,
+    "expected_tool": "estimate_graded",
+    "tolerance_mm": 1.0,
+    "ground_truth_source": "ball_girth at size 9 = 243.8, grading rate = 4mm/size. Estimate = 243.8 + (8-9)*4 = 239.8. Actual size 8 value = 239.8 (matches perfectly)."
+  },
+  {
+    "id": 9,
+    "type": "grading",
+    "question": "Estimate the waist girth for HS030624ML-2 in size 10, given its size 9 measurement.",
+    "expected_answer_value": 248.9,
+    "expected_tool": "estimate_graded",
+    "tolerance_mm": 1.0,
+    "ground_truth_source": "waist_girth at size 9 = 245.9, grading rate = 3mm/size. Estimate = 245.9 + (10-9)*3 = 248.9. Actual size 10 = 248.9 (exact match)."
+  },
+  {
+    "id": 10,
+    "type": "filter",
+    "question": "What is the largest instep girth among women's lasts in size 7?",
+    "expected_answer_value": 227.0,
+    "expected_tool": "compare_lasts",
+    "tolerance_mm": 1.0,
+    "ground_truth_source": "WOMENS size 7: HS020325WL-1 instep=221.8, HS040924WL-2 instep=227.0 → max is 227.0 (HS040924WL-2)"
+  },
+  {
+    "id": 11,
+    "type": "tool_selection",
+    "question": "What is the ball girth of HS010125ML-1 in size 9?",
+    "expected_answer_value": 243.8,
+    "expected_tool": "lookup_dimension",
+    "tolerance_mm": 1.0,
+    "note": "Duplicate question intentional — asserts tool selection correctness, not answer value. Do not delete. The evaluator checks that 'lookup_dimension' is called, NOT 'estimate_graded'. This catches the failure mode where the LLM reaches for grading logic on a size that already exists in the dataset.",
+    "ground_truth_source": "HS010125ML-1 size 9 exists in dataset → must use lookup, not grading"
+  },
+  {
+    "id": 12,
+    "type": "no_list_lasts",
+    "question": "What is the ball girth of HS010125ML-1 in size 9?",
+    "expected_answer_value": 243.8,
+    "expected_tool": "lookup_dimension",
+    "forbidden_tool": "list_lasts",
+    "tolerance_mm": 1.0,
+    "note": "Asserts that list_lasts is NOT called when the last code is already explicit in the query. A healthy pipeline should never call list_lasts for a direct lookup.",
+    "ground_truth_source": "HS010125ML-1 is fully specified — no need to enumerate available lasts"
+  }
+]
